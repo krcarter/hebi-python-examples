@@ -11,7 +11,8 @@ from hebi import arm as arm_api
 phone_family = "HEBI"
 phone_name   = "mobileIO"
 arm_family   = "Arm"
-hrdf_file    = "hrdf/A-2085-06.hrdf"
+hrdf_file    = "hrdf/A-2099-07G.hrdf"
+gains_file    = "gains/A-2099-07G.xml"
 
 lookup = hebi.Lookup()
 sleep(2)
@@ -25,9 +26,14 @@ m.update()
 
 # Setup arm components
 arm = arm_api.create([arm_family],
-                     names=['J1_base', 'J2_shoulder', 'J3_elbow', 'J4_wrist1', 'J5_wrist2', 'J6_wrist3'],
+                     names=['J1_base', 'J2A_shoulder1', 'J2B_shoulder2', 'J3_elbow', 'J4_wrist1', 'J5_wrist2', 'J6_wrist3'],
                      lookup=lookup,
                      hrdf_file=hrdf_file)
+alt_shoulder_group = lookup.get_group_from_names(arm_family, ['J2B_shoulder1'])
+double_shoulder = arm_api.DoubleJointedMirror(2, alt_shoulder_group)
+arm.add_plugin(double_shoulder)
+
+arm.load_gains(gains_file)
 
 keep_running = True
 pending_goal = False
