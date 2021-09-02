@@ -10,7 +10,7 @@ class Arm(PeripheralBody):
     damper_gains = np.array([1.0, 1.0, 1.0, 0.0, 0.0, 0.0], dtype=np.float64).T
     spring_gains = np.array([100.0, 10.0, 100.0, 0.0, 0.0, 0.0], dtype=np.float64).T
 
-    Jacobian_Determinant_Threshold = 0.020
+    Jacobian_Determinant_Threshold = 0.010
     """
   The lower threshold allowed for the determinant calculation of the jacobians.
   Anything below this will be considered at or near a singularity.
@@ -170,8 +170,8 @@ class Arm(PeripheralBody):
         """Updates calculations based on the position of the arm at the given
         point in time."""
         super(Arm, self).update_position()
-        self._current_det_actual = abs(np.linalg.det(self._current_j_actual[0:3, 0:3]))
-        self._current_det_expected = abs(np.linalg.det(self._current_j_expected[0:3, 0:3]))
+        self._current_det_actual = np.linalg.det(self._current_j_actual[0:4, 0:4])
+        self._current_det_expected = np.linalg.det(self._current_j_expected[0:4, 0:4])
 
     def update_command(self, group_command, pose, soft_start):
         """Write into the command object based on the current state of the arm.
@@ -255,8 +255,8 @@ class Arm(PeripheralBody):
         self._user_commanded_grip_velocity.fill(0)
         self._current_xyz.fill(0)
         np.copyto(self._grip_pos, self._home_ef[0:3, 3])
-        np.copyto(self._new_grip_pos, self._grip_pos)
-        np.copyto(self._joint_angles, self.home_angles)
+        np.copyto(self._grip_pos, self._new_grip_pos)
+        np.copyto(self._joint_angles, self.home_angles.reshape((4, 1)))
         self._joint_velocities.fill(0)
         self._joint_efforts.fill(0)
         self._user_commanded_wrist_velocity = 0.0
