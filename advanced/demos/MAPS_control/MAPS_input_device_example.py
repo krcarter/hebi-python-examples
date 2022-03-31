@@ -41,7 +41,6 @@ class ContinuousAngleMaps:
                 self.angle_offsets[i] += 2*np.pi 
 
     def rebalance(self, home_pose: 'npt.NDArray[np.float64]'):
-        #'''Adjusts angles so they lie in [-π, π]'''
         '''Adjusts angles so they lie within one rotation of the provided pose'''
         for i in range(len(self.angle_offsets)):
             while self.angle_offsets[i] - home_pose[i] > 2*np.pi:
@@ -98,7 +97,7 @@ class LeaderFollowerControl:
         errors[0] = np.sum((self.input_arm.position - positions) ** 2)
 
     def send(self):
-        output_arm.send()
+        self.output_arm.send()
 
     def update(self, t_now: float, command_input: 'Optional[LeaderFollowerInputs]'):
         self.input_arm.update()
